@@ -1,9 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { getGateway } = require('./fabric');
+const cors = require('cors');
+
 
 const app = express();
 app.use(bodyParser.json());
+app.use(cors());
+
 
 const CHANNEL_NAME = 'channel';  // your channel name
 const CHAINCODE_NAME = 'cc-go'; // your chaincode name
@@ -228,6 +232,18 @@ app.delete('/api/private/purge/:collection/:key', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// GET /api/history/:id
+app.get('/api/history/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await contract.evaluateTransaction('GetAssetHistory', id);
+    res.json(JSON.parse(result.toString()));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 
 

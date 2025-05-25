@@ -1,0 +1,14 @@
+{
+  "name": "fabric-rest-api",
+  "version": "1.0.0",
+  "description": "Hyperledger Fabric REST API",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "fabric-network": "^2.2.15",
+    "winston": "^3.11.0"
+  }
+}
