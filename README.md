@@ -1,9 +1,3 @@
----
-id: getting-started
-title: Getting started
----
-
-[![Build Status](https://img.shields.io/travis/kfsoftware/hlf-operator/main.svg?label=E2E%20testing)](https://travis-ci.org/kfsoftware/hlf-operator)
 
 # Hyperledger Fabric Asset Transfer Network
 
@@ -68,6 +62,7 @@ POST   /api/assets                  # Create new asset
 PUT    /api/assets/:id/transfer     # Transfer asset to new owner
 GET    /api/assets/:id              # Fetch asset details by ID
 GET    /api/assets/:id/history      # Get asset's transaction history
+```
 
 
 🚀 Getting Started
@@ -94,11 +89,7 @@ Krew (to install HLF plugin)
 bash
 Copy code
 kubectl apply -f ./hack/istio-operator/crds/*
-helm template ./hack/istio-operator/ \
-  --set hub=docker.io/istio \
-  --set tag=1.8.0 \
-  --set operatorNamespace=istio-operator \
-  --set watchedNamespaces=istio-system | kubectl apply -f -
+helm template ./hack/istio-operator/   --set hub=docker.io/istio   --set tag=1.8.0   --set operatorNamespace=istio-operator   --set watchedNamespaces=istio-system | kubectl apply -f -
 
 kubectl create ns istio-system
 kubectl apply -n istio-system -f ./hack/istio-operator.yaml
@@ -123,29 +114,22 @@ export ORDERER_VERSION=2.4.3
 Deploy CAs
 bash
 Copy code
-kubectl hlf ca create --storage-class=standard --capacity=2Gi --name=org1-ca \
-    --enroll-id=enroll --enroll-pw=enrollpw
+kubectl hlf ca create --storage-class=standard --capacity=2Gi --name=org1-ca     --enroll-id=enroll --enroll-pw=enrollpw
 kubectl wait --timeout=180s --for=condition=Running fabriccas.hlf.kungfusoftware.es --all
-kubectl hlf ca register --name=org1-ca --user=peer --secret=peerpw --type=peer \
-    --enroll-id enroll --enroll-secret=enrollpw --mspid Org1MSP
+kubectl hlf ca register --name=org1-ca --user=peer --secret=peerpw --type=peer     --enroll-id enroll --enroll-secret=enrollpw --mspid Org1MSP
 Deploy Peer
 bash
 Copy code
-kubectl hlf peer create --statedb=couchdb --image=$PEER_IMAGE --version=$PEER_VERSION --storage-class=standard --enroll-id=peer --mspid=Org1MSP \
-    --enroll-pw=peerpw --capacity=5Gi --name=org1-peer0 --ca-name=org1-ca.default
+kubectl hlf peer create --statedb=couchdb --image=$PEER_IMAGE --version=$PEER_VERSION --storage-class=standard --enroll-id=peer --mspid=Org1MSP     --enroll-pw=peerpw --capacity=5Gi --name=org1-peer0 --ca-name=org1-ca.default
 kubectl wait --timeout=180s --for=condition=Running fabricpeers.hlf.kungfusoftware.es --all
 Deploy Orderer CA and Node
 bash
 Copy code
-kubectl hlf ca create --storage-class=standard --capacity=2Gi --name=ord-ca \
-    --enroll-id=enroll --enroll-pw=enrollpw
+kubectl hlf ca create --storage-class=standard --capacity=2Gi --name=ord-ca     --enroll-id=enroll --enroll-pw=enrollpw
 kubectl wait --timeout=180s --for=condition=Running fabriccas.hlf.kungfusoftware.es --all
-kubectl hlf ca register --name=ord-ca --user=orderer --secret=ordererpw --type=orderer \
-    --enroll-id enroll --enroll-secret=enrollpw --mspid=OrdererMSP
+kubectl hlf ca register --name=ord-ca --user=orderer --secret=ordererpw --type=orderer     --enroll-id enroll --enroll-secret=enrollpw --mspid=OrdererMSP
 
-kubectl hlf ordnode create --image=$ORDERER_IMAGE --version=$ORDERER_VERSION \
-    --storage-class=standard --enroll-id=orderer --mspid=OrdererMSP --enroll-pw=ordererpw \
-    --capacity=2Gi --name=ord-node1 --ca-name=ord-ca.default
+kubectl hlf ordnode create --image=$ORDERER_IMAGE --version=$ORDERER_VERSION     --storage-class=standard --enroll-id=orderer --mspid=OrdererMSP --enroll-pw=ordererpw     --capacity=2Gi --name=ord-node1 --ca-name=ord-ca.default
 kubectl wait --timeout=180s --for=condition=Running fabricorderernodes.hlf.kungfusoftware.es --all
 🔗 Create Channel and Join Network
 Channel Generation
@@ -193,34 +177,26 @@ tar cfz code.tar.gz connection.json
 tar cfz asset-transfer-basic-external.tgz metadata.json code.tar.gz
 export PACKAGE_ID=$(kubectl hlf chaincode calculatepackageid --path=asset-transfer-basic-external.tgz --language=node --label=$CHAINCODE_LABEL)
 
-kubectl hlf chaincode install --path=./asset-transfer-basic-external.tgz --config=org1.yaml \
-    --language=golang --label=$CHAINCODE_LABEL --user=admin --peer=org1-peer0.default
+kubectl hlf chaincode install --path=./asset-transfer-basic-external.tgz --config=org1.yaml     --language=golang --label=$CHAINCODE_LABEL --user=admin --peer=org1-peer0.default
 Sync External Chaincode
 bash
 Copy code
-kubectl hlf externalchaincode sync --image=kfsoftware/chaincode-external:latest \
-    --name=$CHAINCODE_NAME --namespace=default --package-id=$PACKAGE_ID --tls-required=false --replicas=1
+kubectl hlf externalchaincode sync --image=kfsoftware/chaincode-external:latest     --name=$CHAINCODE_NAME --namespace=default --package-id=$PACKAGE_ID --tls-required=false --replicas=1
 Approve and Commit Chaincode
 bash
 Copy code
 export SEQUENCE=1
 export VERSION="1.0"
 
-kubectl hlf chaincode approveformyorg --config=org1.yaml --user=admin --peer=org1-peer0.default \
-    --package-id=$PACKAGE_ID --version="$VERSION" --sequence="$SEQUENCE" --name=asset \
-    --policy="OR('Org1MSP.member')" --channel=demo
+kubectl hlf chaincode approveformyorg --config=org1.yaml --user=admin --peer=org1-peer0.default     --package-id=$PACKAGE_ID --version="$VERSION" --sequence="$SEQUENCE" --name=asset     --policy="OR('Org1MSP.member')" --channel=demo
 
-kubectl hlf chaincode commit --config=org1.yaml --user=admin --mspid=Org1MSP \
-    --version="$VERSION" --sequence="$SEQUENCE" --name=asset \
-    --policy="OR('Org1MSP.member')" --channel=demo
+kubectl hlf chaincode commit --config=org1.yaml --user=admin --mspid=Org1MSP     --version="$VERSION" --sequence="$SEQUENCE" --name=asset     --policy="OR('Org1MSP.member')" --channel=demo
 Invoke & Query Chaincode
 bash
 Copy code
-kubectl hlf chaincode invoke --config=org1.yaml --user=admin --peer=org1-peer0.default \
-    --chaincode=asset --channel=demo --fcn=initLedger -a '[]'
+kubectl hlf chaincode invoke --config=org1.yaml --user=admin --peer=org1-peer0.default     --chaincode=asset --channel=demo --fcn=initLedger -a '[]'
 
-kubectl hlf chaincode query --config=org1.yaml --user=admin --peer=org1-peer0.default \
-    --chaincode=asset --channel=demo --fcn=GetAllAssets -a '[]'
+kubectl hlf chaincode query --config=org1.yaml --user=admin --peer=org1-peer0.default     --chaincode=asset --channel=demo --fcn=GetAllAssets -a '[]'
 🧹 Cleanup
 bash
 Copy code
@@ -236,4 +212,3 @@ If chaincode installation fails with an external builder error, try using Kind i
 📽️ Demo Video: [Attached video demonstrates full asset lifecycle]
 
 📷 Lens IDE Image: Shows all running pods and components
-
