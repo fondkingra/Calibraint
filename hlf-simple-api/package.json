@@ -1,0 +1,19 @@
+{
+  "name": "hlf-simple-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "express": "^5.1.0",
+    "fabric-network": "^2.2.20",
+    "js-yaml": "^4.1.0",
+    "yaml": "^2.8.0"
+  }
+}
